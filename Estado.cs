@@ -21,7 +21,7 @@ namespace IA_TP03_4
         public int[][] moverCero(char direccion)
         {
             int[][] resultado = EstadoDeLaPlaca;
-            int[] posicionDeCero = PosicionDe(0, EstadoDeLaPlaca);
+            int[] posicionDeCero = PosicionDe(0);
             bool igualAlPadre = false;
             switch (direccion)
             {
@@ -52,23 +52,23 @@ namespace IA_TP03_4
             }
             if(Padre != null)
             {
-                igualAlPadre = (ObtenerDistancias(Padre.EstadoDeLaPlaca) == 0);
+                igualAlPadre = IgualA(Padre.EstadoDeLaPlaca);
             }
-            if ((ObtenerDistancias(resultado) == 0) || igualAlPadre)
+            if (IgualA(resultado) || igualAlPadre)
             {
                 resultado = null;
             }
             return resultado;
         }
 
-        public int[] PosicionDe(int elemento, int[][] array)
+        public int[] PosicionDe(int elemento)
         {
             int[] posiciones = new int[2];
-            for (int i = 0; i < array.Length; i++)
+            for (int i = 0; i < EstadoDeLaPlaca.Length; i++)
             {
-                for (int j = 0; j < array[i].Length; j++)
+                for (int j = 0; j < EstadoDeLaPlaca[i].Length; j++)
                 {
-                    if(array[i][j] == elemento)
+                    if(EstadoDeLaPlaca[i][j] == elemento)
                     {
                         posiciones = new int[]{ i, j };
                         break;
@@ -95,22 +95,19 @@ namespace IA_TP03_4
             return resultado;
         }
 
-        public int ObtenerDistancias(int[][] estadoDeseado)
+        public bool IgualA(int[][] array)
         {
-            int distancia = 0;
-            int[] posicionesEnEstadoDeseado;
-            int[] posicionesEnPlaca;
-            for (int i = 0; i < estadoDeseado.Length; i++)
+            for (int i = 0; i < array.Length; i++)
             {
-                for (int j = 0; j < estadoDeseado[0].Length; j++)
+                for (int j = 0; j < array[i].Length; j++)
                 {
-                    posicionesEnEstadoDeseado = PosicionDe(estadoDeseado[i][j], estadoDeseado);
-                    posicionesEnPlaca = PosicionDe(estadoDeseado[i][j], EstadoDeLaPlaca);
-                    distancia += Math.Abs(posicionesEnEstadoDeseado[0] - posicionesEnPlaca[0]);
-                    distancia += Math.Abs(posicionesEnEstadoDeseado[1] - posicionesEnPlaca[1]);
+                    if (array[i][j] != EstadoDeLaPlaca[i][j])
+                    {
+                        return false;
+                    }
                 }
             }
-            return distancia;
+            return true;
         }
     }
 }

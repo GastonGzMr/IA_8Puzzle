@@ -11,68 +11,34 @@ namespace IA_TP03_4
         static void Main(string[] args)
         {
             Estado estadoInicial = new Estado(new int[][]{new int[] { 1, 3, 4 },
-                                                          new int[] { 7, 2, 0 },
-                                                          new int[] { 6, 8, 5 }});
-            int[][] estadoFinal = new int[][] {new int[] { 1, 2, 3 },
-                                               new int[] { 8, 0, 4 },
-                                               new int[] { 7, 6, 5 }};
-            
-            List<Estado> estadosSinExpandir = new List<Estado>();
-            List<Estado> secuenciaSolucion = new List<Estado>();
-            List<Estado> estadosExpandidos = new List<Estado>();
+                                                          new int[] { 8, 6, 2 },
+                                                          new int[] { 0, 7, 5 }});
+            Estado estadoFinal = new Estado(new int[][]{new int[] { 1, 2, 3 },
+                                                        new int[] { 8, 0, 4 },
+                                                        new int[] { 7, 6, 5 }});
 
-            Estado estadoSinExpandir = estadoInicial;
-            estadosExpandidos.Add(estadoInicial);
-            int distancias = estadoSinExpandir.ObtenerDistancias(estadoFinal);
-            while(distancias != 0)
+            List<Resolvedor> resolvedores = new List<Resolvedor>{
+                new Resolvedor(new FichasMalColocadas()),
+                new Resolvedor(new DistanciaManhattan())
+            };
+            Estado estadoSiguiente;
+            DateTime inicio;
+
+            foreach (Resolvedor resolvedor in resolvedores)
             {
-                foreach (Estado estado in ExpandirEstado(estadoSinExpandir))
+                inicio = DateTime.Now;
+                List<Estado> secuenciaSolucion = resolvedor.Resolver(estadoInicial, estadoFinal).ToList();
+                for (int i = 0; i < secuenciaSolucion.Count(); i++)
                 {
-                    Console.WriteLine("Hijos:");
-                    if ((estado != null) && (estadosExpandidos.Count(x => estado.ObtenerDistancias(x.EstadoDeLaPlaca) == 0) == 0))
-                    {
-                        estadosSinExpandir.Add(estado);
-                    }
+                    Console.WriteLine("Paso " + i + ":");
+                    estadoSiguiente = secuenciaSolucion[i];
+                    Escribir(estadoSiguiente.EstadoDeLaPlaca);
+                    Console.WriteLine("Distancia: " + resolvedor.Heuristica.ObtenerDistancias(estadoSiguiente, estadoFinal));
                 }
-                estadosSinExpandir = estadosSinExpandir.OrderBy(x => x.ObtenerDistancias(estadoFinal)).ToList();
-                estadoSinExpandir = estadosSinExpandir.First();
-                estadosSinExpandir.Remove(estadoSinExpandir);
-                estadosExpandidos.Add(estadoSinExpandir);
-                distancias = estadoSinExpandir.ObtenerDistancias(estadoFinal);
+                Console.WriteLine("Heuristica "+resolvedor.Heuristica.GetType().Name+" finalizó en "+
+                    DateTime.Now.Subtract(inicio).TotalMilliseconds+" milisegundos.");
+                Console.ReadLine();
             }
-
-            Estado estadoSiguiente = estadoSinExpandir;
-            while (estadoSiguiente != null)
-            {
-                secuenciaSolucion.Add(estadoSiguiente);
-                estadoSiguiente = estadoSiguiente.Padre;
-            }
-
-            secuenciaSolucion.Reverse();
-            for (int i = 0; i < secuenciaSolucion.Count(); i++)
-            {
-                Console.WriteLine("Paso " + i + ":");
-                estadoSiguiente = secuenciaSolucion[i];
-                Escribir(estadoSiguiente.EstadoDeLaPlaca);
-            }
-            Console.WriteLine("Fin");
-            Console.ReadLine();
-        }
-
-        static List<Estado> ExpandirEstado(Estado estado)
-        {
-            List<Estado> estados = new List<Estado>();
-            int[][] estadoActual;
-            char[] arrayDeDirecciones = { 'N', 'S', 'O', 'E' };
-            foreach (char direccion in arrayDeDirecciones)
-            {
-                estadoActual = estado.moverCero(direccion);
-                if (estadoActual != null)
-                {
-                    estados.Add(new Estado(estadoActual, estado));
-                }
-            }
-            return estados;
         }
 
         static void Escribir(int[][] placa)
